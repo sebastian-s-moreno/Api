@@ -78,7 +78,34 @@ namespace Forte.Weather.Api.Controllers
             return Ok();
         }
 
-        [HttpGet("details")]
+        [HttpPut("locations/{id}")]
+        public async Task<ActionResult<Location>> UpdateLocation(int id, Location location)
+        {
+            try
+            {
+                if (id != location.ID)
+                    return BadRequest("Location ID mismatch");
+
+                var locationToUpdate = Locations[id];
+
+                if (locationToUpdate == null)
+                    return NotFound($"Employee with Id = {id} not found");
+                
+                double latitude = double.Parse(location.Latitude, CultureInfo.InvariantCulture);
+                double longitude = double.Parse(location.Longitude, CultureInfo.InvariantCulture);
+                TimeSerie? ts = await GetDetails(latitude, longitude);
+                location.Timeserie = ts;
+                return Locations[id] = location;
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "Error updating data");
+            }
+        }
+
+
+        [HttpGet("locations/details")]
         public async Task<TimeSerie> GetDetails(double lat, double lon)
         {
             var elements = $"lat={lat}&lon={lon}";
