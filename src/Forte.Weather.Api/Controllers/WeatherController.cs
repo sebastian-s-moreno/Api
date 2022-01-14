@@ -18,15 +18,7 @@ namespace Forte.Weather.Api.Controllers
         }
 
         [HttpGet("locations/recommended")]
-        public Location GetRecommended()
-        {
-            var index = new Random().Next(Locations.Count);
-
-            return Locations[index];
-        }
-
-        [HttpGet("locations/recommended2")]
-        public Location? GetRecommended2(string preference)
+        public Location? GetRecommended(string preference)
         {
             Location location = null;
             if (Locations.Count() > 0)
