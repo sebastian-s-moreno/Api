@@ -77,9 +77,15 @@ namespace Forte.Weather.Api.Controllers
             Locations.Add(location);
             return Ok();
         }
+        [HttpPost("locations/delete")]
+        public async Task<OkResult> Post([FromBody] int id)
+        {
+            Locations.Remove(Locations.Single(s => s.ID == id));
+            return Ok();
+        }
 
-        [HttpGet("details")]
-        public async Task<TimeSerie> GetDetails(double lat, double lon)
+        [HttpGet("locations/details")]
+        public async Task<TimeSerie?> GetDetails(double lat, double lon)
         {
             var elements = $"lat={lat}&lon={lon}";
             var url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?" + elements;
