@@ -61,7 +61,7 @@ namespace Forte.Weather.Api.Controllers
         [HttpPost("locations")]
         public async Task<OkResult> Post([FromBody] Location location)
         {
-            location.ID = Locations.Count();
+            location.ID = Guid.NewGuid().ToString();
             double latitude = double.Parse(location.Latitude, CultureInfo.InvariantCulture);
             double longitude = double.Parse(location.Longitude, CultureInfo.InvariantCulture);
             TimeSerie? ts = await GetDetails(latitude, longitude);
@@ -69,8 +69,9 @@ namespace Forte.Weather.Api.Controllers
             Locations.Add(location);
             return Ok();
         }
+
         [HttpPost("locations/delete")]
-        public async Task<OkResult> Post([FromBody] int id)
+        public OkResult Delete([FromBody] string id)
         {
             Locations.Remove(Locations.Single(s => s.ID == id));
             return Ok();
@@ -93,9 +94,10 @@ namespace Forte.Weather.Api.Controllers
             return response?.Properties?.Timeseries?.FirstOrDefault();
         }
 
+
         public class Location
         {
-            public int ID { get; set; }
+            public string? ID { get; set; }
             public string Name { get; set; } = "";
             public string Latitude { get; set; } = "";
             public string Longitude { get; set; } = "";
