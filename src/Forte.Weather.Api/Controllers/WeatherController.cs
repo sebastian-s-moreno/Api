@@ -18,15 +18,7 @@ namespace Forte.Weather.Api.Controllers
         }
 
         [HttpGet("locations/recommended")]
-        public Location GetRecommended()
-        {
-            var index = new Random().Next(Locations.Count);
-
-            return Locations[index];
-        }
-
-        [HttpGet("locations/recommended2")]
-        public Location? GetRecommended2(string preference)
+        public Location? GetRecommended(string preference)
         {
             Location location = null;
             if (Locations.Count() > 0)
@@ -69,12 +61,19 @@ namespace Forte.Weather.Api.Controllers
         [HttpPost("locations")]
         public async Task<OkResult> Post([FromBody] Location location)
         {
-            location.ID = Locations.Count();
+            location.ID = Guid.NewGuid().ToString();
             double latitude = double.Parse(location.Latitude, CultureInfo.InvariantCulture);
             double longitude = double.Parse(location.Longitude, CultureInfo.InvariantCulture);
             TimeSerie? ts = await GetDetails(latitude, longitude);
             location.Timeserie = ts;
             Locations.Add(location);
+            return Ok();
+        }
+
+        [HttpPost("locations/delete")]
+        public OkResult Delete([FromBody] string id)
+        {
+            Locations.Remove(Locations.Single(s => s.ID == id));
             return Ok();
         }
 
@@ -122,9 +121,10 @@ namespace Forte.Weather.Api.Controllers
             return response?.Properties?.Timeseries?.FirstOrDefault();
         }
 
+
         public class Location
         {
-            public int ID { get; set; }
+            public string? ID { get; set; }
             public string Name { get; set; } = "";
             public string Latitude { get; set; } = "";
             public string Longitude { get; set; } = "";
