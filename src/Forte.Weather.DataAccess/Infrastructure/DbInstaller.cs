@@ -10,9 +10,9 @@ namespace Forte.Weather.DataAccess.Infrastructure
     {
         public static void AddDataAccess(this IServiceCollection services)
         {
-            services.AddDbContext<WeatherDbContext>(options => options.UseSqlite(GetConnectionString()));
+            services.AddDbContext<LocationDbContext>(options => options.UseSqlite(GetConnectionString()));
 
-            services.AddTransient<IWeatherRepository, WeatherRepository>();
+            services.AddTransient<ILocationRepository, LocationRepository>();
         }
 
         private static string GetConnectionString()
@@ -21,7 +21,7 @@ namespace Forte.Weather.DataAccess.Infrastructure
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            return builder.GetConnectionString("WeatherDb");
+            return builder.GetConnectionString("LocationDb");
         }
     }
 }
