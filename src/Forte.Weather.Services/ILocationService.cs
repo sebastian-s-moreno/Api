@@ -3,9 +3,9 @@
     public interface ILocationService
     {
 
-        public Task<LocationModel?> GetRecommendedLocation(string activity);
+        public LocationModel? GetRecommendedLocation(string activity);
 
-        public Task<List<LocationModel>> GetLocations();
+        public List<LocationModel> GetLocations();
 
         public LocationModel? GetLocation(string id);
 

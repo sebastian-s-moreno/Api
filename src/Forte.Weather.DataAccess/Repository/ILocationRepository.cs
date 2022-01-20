@@ -5,7 +5,7 @@ namespace Forte.Weather.DataAccess.Repository
     public interface ILocationRepository
     {
 
-        public Task<List<LocationEntity>> GetLocations();
+        public List<LocationEntity> GetLocations();
 
         public LocationEntity? GetLocation(string id);
 

@@ -1,11 +1,16 @@
-﻿namespace Forte.Weather.Services
+﻿ using System.ComponentModel.DataAnnotations;
+
+namespace Forte.Weather.Services
 {
 
     public class LocationModel
     {
         public string? ID { get; set; }
+        [Required]
         public string Name { get; set; } = "";
+        [Range(-90,90)]
         public double Latitude { get; set; }
+        [Range(-180,80)]
         public double Longitude { get; set; }
         public TimeSerie? Timeserie { get; set; }
     }

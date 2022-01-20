@@ -33,9 +33,9 @@ namespace Forte.Weather.DataAccess.Repository
             return entry;
         }
 
-        public async Task<List<LocationEntity>> GetLocations()
+        public List<LocationEntity> GetLocations()
         {
-            return await _context.Locations.ToListAsync();
+            return _context.Locations.ToList();
         }
 
         public void UpdateLocation(string id, LocationEntity location)
