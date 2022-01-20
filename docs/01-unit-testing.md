@@ -3,75 +3,83 @@ In this session, you will extend the
 In this session you learn to cuztomize and improve your api documentation
 ![customized api](customized-api.PNG)
 
-### Change the main title and add an description
-```C#
-  options.SwaggerDoc("v1", new() 
-  { 
-      Title = "Weather Api", 
-      Version = "v1",
-      Description = "Forte Academy building weather api"
-  });
-```
-### Change section title to Weather
-Rename Controller
+### Get Weather Details from an external API
+Now, we will create an method to retrieve weather data from an external source. We will be using the API from Yr. You can read more about the API here: https://developer.yr.no/doc/
 
-### Lowercase endpoint url
-Add route prefix to Controller
+Add the following method to your LocationService: 
 ```C#
-[Route("api/weather")]
+public async Task<TimeSerie?> GetUpdatedDetails(string? id, string? longitude, string? latitude)
+        {
+            string elements = "";
+            if (id != null)
+            {
+                LocationModel? location = GetLocation(id);
+                if (location != null){
+                    elements = $"lat={location.Latitude}&lon={location.Longitude}";
+                }
+            }
+            else
+            {
+                elements = $"lat={latitude}&lon={longitude}";
+            }
+            var url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?" + elements;
+            YrApiResponse? response = null;
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var productValue = new ProductInfoHeaderValue("ForteWeatherApp", "1.0");
+                request.Headers.UserAgent.Add(productValue);
+                var httpResponse = await client.SendAsync(request);
+                if (httpResponse.IsSuccessStatusCode)
+                {
+                    response = await httpResponse.Content.ReadFromJsonAsync<YrApiResponse>();
+                    return response?.Properties?.Timeseries?.FirstOrDefault();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 ```
-### Add description to endpoint
-First you need to autogenerate an xml documentation file by adding the following line below in the project file.
-This will case a lot of errors due to missing comments in the code and to avoid this supress error 1591
-```xml
-<GenerateDocumentationFile>True</GenerateDocumentationFile>
-<NoWarn>1591</NoWarn>
-```
-Get the full path to the generated documentation file
-```C#
-var xmlDocumentation = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlDocumentation);
-```
-Add option for including xml comments in swagger (AddSwaggerGen)
-```C#
-options.IncludeXmlComments(xmlPath);
-```
-### Customize your url (/docs/index.html)
-Set route prefix options (UseSwaggerUI)
-```C#
-options.RoutePrefix = "docs";
-```
-Your route template needs to reflect the new route prefix and you need to set new Swagger endpoint
-```C#
-app.UseSwagger(options => options.RouteTemplate = "docs/{documentName}/docs.json");
-app.UseSwaggerUI(options =>
-{
-    options.RoutePrefix = "docs";
-    options.SwaggerEndpoint("/docs/v1/docs.json", "Forte.Weather.Api v1");
-});
-```
-### Customize your design
-In the design folder you will find all files necessary to implement the design
-Add a folder 'wwwroot' in the root of your project
-Move the swagger-ui catalouge and all subfiles into wwwroot.
-Configure application to use static files and inject your custom css
-```C#
-app.UseStaticFiles();
-app.UseSwaggerUI(options =>
-{
-    options.InjectStylesheet("/swagger-ui/custom.css");
-});
-```
-### Change favicon and title in browser tab
-Set tile as a swagger ui option
-```C#
-app.UseSwaggerUI(options => options.DocumentTitle = "Weather api");
-```
-Set favicon by copy the docs folder into wwwroot (name of the folder needs to match routeprefix)
-Remember to refresh browser cash to see the changes ([Shift]+[F5])
 
-### Refactor
-- Place all setup of api documentation into it's own class to have a clean seperation in your code
+When testing an method, it is important to test the different possibilities of input. You often start by creating tests for the expected input, then you need to think about what else an user can try to use as input. Add the following tests to your test file. Try to run them. Several of them will fail. Can you see why? Try to edit the GetUpdatedDetails() method, and make sure all the tests pass. 
+
+```C#
+
+        [TestMethod]
+        public void GetDetailsCorrectID()
+        {
+            var result = _service.GetUpdatedDetails("5e525c01-d4c8-4c35-a7da-f4ad7b19dd59", null, null);
+            Assert.IsNotNull(result);
+        }
+        [TestMethod]
+        public void GetDetailsCorrectCoordinates()
+        {
+            var result = _service.GetUpdatedDetails(null, "5", "5");
+            Assert.IsNotNull(result);
+        }
+        [TestMethod]
+        public void GetDetailsInvalidString()
+        {
+            var result = _service.GetUpdatedDetails("123",null,null).Result;
+            Assert.IsNull(result);
+        }
+        [TestMethod]
+        public void GetDetailsInvalidCoordinates()
+        {
+            var result = _service.GetUpdatedDetails(null, "100", "800").Result;
+            Assert.IsNull(result);
+        }
+        [TestMethod]
+        public void GetDetailsNoInput()
+        {
+            var result = _service.GetUpdatedDetails(null, null, null).Result;
+            Assert.IsNull(result);
+        }
+        
+```
 
 
-Next up - [Introduce service layer](02-service-layer.md)
+
+Next up - [Integration testing](02-service-layer.md)
