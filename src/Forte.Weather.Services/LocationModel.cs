@@ -8,10 +8,12 @@ namespace Forte.Weather.Services
         public string? ID { get; set; }
         [Required]
         public string Name { get; set; } = "";
+        [Required]
         [Range(-90,90)]
-        public double Latitude { get; set; }
+        public double? Latitude { get; set; }
+        [Required]
         [Range(-180,80)]
-        public double Longitude { get; set; }
+        public double? Longitude { get; set; }
         public TimeSerie? Timeserie { get; set; }
     }
 
