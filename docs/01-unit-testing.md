@@ -80,6 +80,59 @@ When testing an method, it is important to test the different possibilities of i
         
 ```
 
+### Get recommended location
+By using the weather details for all locations, the API should be able to tell the user the recommended location, given a chosen activity. The available activities are: Swimming, Sailing, Skiing, Sightseeing and Unspecified. 
+Add the following code to the GetRecommendedLocation method in the LocationService: 
+
+```C#
+List<LocationModel> Locations = GetLocations();
+
+            LocationModel? location = null;
+            if (Locations.Count() > 0)
+            {
+                switch (activity)
+                {
+                    case "Swimming":
+                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
+                        break;
+                    case "Sailing":
+                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Wind_speed).First();
+                        break;
+                    case "Skiing":
+                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
+                        break;
+                    case "Sightseeing":
+                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_pressure_at_sea_level).First();
+                        break;
+                    case "Unspecified":
+                        var index = new Random().Next(Locations.Count);
+                        location = Locations[index];
+                        break;
+                    default:
+                        return null;
+                }
+                return location;
+
+            }
+            else
+            {
+                return null;
+            }
+            
+ ```
+ 
+ This method should have at least three different unit tests: 
+ 1. An input from the list of activities
+ 2. An input which are not from the list, ex: "" (empty string)
+ 3. Calling the method when there is no available locations in the database.
+
+Try to write these three different tests by yourself. 
+Tips: For the latter test, the following line can be useful: 
+```C#
+_mockRepository.Setup(mr => mr.GetLocations()).Returns(new List<LocationEntity>());
+```
+
+
 
 
 Next up - [Integration testing](02-service-layer.md)
