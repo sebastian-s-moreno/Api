@@ -6,7 +6,7 @@ In this session you learn to cuztomize and improve your api documentation
 ### Get Weather Details from an external API
 Now, we will create an method to retrieve weather data from an external source. We will be using the API from Yr. You can read more about the API here: https://developer.yr.no/doc/
 
-Add the following method to your LocationService: 
+Add the following method to your LocationService. To use the API from yr, you need to pass the coordinates (longitude and latitude) of a place. This method can be used by either coordinates, or the ID of a saved location. If you are using an ID, the location will be retrieved from the database.
 ```C#
 public async Task<TimeSerie?> GetUpdatedDetails(string? id, string? longitude, string? latitude)
         {
