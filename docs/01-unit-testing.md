@@ -87,6 +87,115 @@ public void AddLocation(LocationEntity location)
 }
 ```
 
+### Create the rest of the CRUD-methods
+The rest of the methods follows the same pattern. Add the following endpoints to the *LocationController*:
+```C#
+[HttpPost("locations/delete")]
+public ActionResult Delete([FromBody] string id)
+{
+    bool response = _weatherService.DeleteLocation(id);
+    if (response)
+    {
+        return Ok();
+    }
+    else
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            "Error deleting data");
+    }
+}
+
+[HttpPut("locations/{id}")]
+public async Task<ActionResult<LocationModel>> UpdateLocation(string id, LocationModel location)
+{
+    if (location == null)
+    {
+        return BadRequest();
+    }
+    if (!ModelState.IsValid)
+    {
+        return BadRequest(ModelState);
+    }
+    bool response = await _weatherService.UpdateLocation(id,location);
+    if (response)
+    {
+        return Ok();
+    }
+    else
+    {
+        return StatusCode(StatusCodes.Status500InternalServerError,
+            "Error updating data");
+    }
+}
+```
+In the *LocationService* add the following code. We will also create a method for reading just one location, as some of the later methods will need this. 
+```C#
+public bool DeleteLocation(string id)
+{
+    try
+    {
+        _repository.DeleteLocation(id);
+    }
+    catch
+    {
+        return false;
+    }
+    return true;
+}
+
+public async Task<bool> UpdateLocation(string id, LocationModel location)
+{
+    try
+    {
+        TimeSerie? ts = await GetUpdatedDetails(id, null, null);
+        location.Timeserie = ts;
+        _repository.UpdateLocation(id, location.FromModel());
+    }
+    catch
+    {
+        return false;
+    }
+    return true;
+}
+
+public LocationModel? GetLocation(string id)
+{
+    try
+    {
+        return _repository.GetLocation(id)?.ToModel();
+    }
+    catch
+    {
+        return null;
+    }
+}
+```
+And finally, add this code to the *LocationRepository*:
+```C#
+public void DeleteLocation(string id)
+{
+    var entry = _context.Locations.FirstOrDefault(entity => entity.ID == id);
+    if (entry != null)
+    {
+        _context.Locations.Remove(entry);
+        _context.SaveChanges();
+    }
+}
+
+
+public void UpdateLocation(string id, LocationEntity location)
+{
+    var entry = _context.Locations.First(entity => entity.ID == id);
+    _context.Entry(entry).CurrentValues.SetValues(location);
+    _context.SaveChanges();
+}
+
+public LocationEntity? GetLocation(string id)
+{
+    var entry = _context.Locations.FirstOrDefault(entity => entity.ID == id);
+    return entry;
+}
+```
 
 ### Get Weather Details from an external API
 Now, we will create an method to retrieve weather data from an external source. We will be using the API from Yr. You can read more about the API here: https://developer.yr.no/doc/
