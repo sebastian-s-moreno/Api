@@ -33,24 +33,23 @@ namespace Forte.Weather.Api.Controllers
             bool response = await _weatherService.AddLocation(location);
             if (response)
             {
-                return Ok();
+                return Ok(new { message = "Location added" });
             }
             else
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error adding data");
             }
-
+            
         }
 
-
-        [HttpPost("locations/delete")]
-        public ActionResult Delete([FromBody] string id)
+        [HttpDelete("locations/{id}")]
+        public ActionResult Delete(string id)
         {
             bool response = _weatherService.DeleteLocation(id);
             if (response)
             {
-                return Ok();
+                return Ok(new { message = "Location deleted" });
             }
             else
             {
@@ -73,7 +72,7 @@ namespace Forte.Weather.Api.Controllers
             bool response = await _weatherService.UpdateLocation(id,location);
             if (response)
             {
-                return Ok();
+                return Ok(new { message = "Location updated" });
             }
             else
             {
