@@ -3,7 +3,7 @@
     public interface ILocationService
     {
 
-        public LocationModel? GetRecommendedLocation(string activity);
+        public LocationModel? GetRecommendedLocation(ActivityPreference activity);
 
         public List<LocationModel> GetLocations();
 

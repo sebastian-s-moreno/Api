@@ -89,16 +89,13 @@ namespace Forte.Weather.Api.Controllers
         }
 
         [HttpGet("locations/recommended")]
-        public ActionResult GetRecommended(string preference)
+        public ActionResult GetRecommended(ActivityPreference preference)
         {
-            if (string.IsNullOrEmpty(preference))
-            {
-                return BadRequest("The preferred activity is not well formed");
-            }
             return Ok(_weatherService.GetRecommendedLocation(preference));
         }
 
 
 
     }
+    
 }

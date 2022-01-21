@@ -131,7 +131,7 @@ namespace Forte.Weather.Services
 
         }
 
-        public LocationModel? GetRecommendedLocation(string activity)
+        public LocationModel? GetRecommendedLocation(ActivityPreference activity)
         {
             List<LocationModel> Locations = GetLocations();
 
@@ -140,19 +140,19 @@ namespace Forte.Weather.Services
             {
                 switch (activity)
                 {
-                    case "Swimming":
+                    case ActivityPreference.Swimming:
                         location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
                         break;
-                    case "Sailing":
+                    case ActivityPreference.Sailing:
                         location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Wind_speed).First();
                         break;
-                    case "Skiing":
+                    case ActivityPreference.Skiing:
                         location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
                         break;
-                    case "Sightseeing":
+                    case ActivityPreference.Sightseeing:
                         location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_pressure_at_sea_level).First();
                         break;
-                    case "Unspecified":
+                    case ActivityPreference.Unspecified:
                         var index = new Random().Next(Locations.Count);
                         location = Locations[index];
                         break;
