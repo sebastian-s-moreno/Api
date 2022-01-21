@@ -12,8 +12,8 @@ namespace Forte.Weather.DataAccess.Schema
         [Key]
         public string ID { get; set; } = "";
         public string Name { get; set; } = "";
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public string Timeserie { get; set; } = "";
     }
 }

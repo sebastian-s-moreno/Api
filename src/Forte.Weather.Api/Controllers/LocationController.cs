@@ -18,20 +18,28 @@ namespace Forte.Weather.Api.Controllers
         }
 
         [HttpGet("locations/recommended")]
-        public async Task<LocationModel?> GetRecommended(string preference)
+        public ActionResult GetRecommended(string preference)
         {
-            return await _weatherService.GetRecommendedLocation(preference);
+            if (string.IsNullOrEmpty(preference))
+            {
+                return BadRequest("The preferred activity is not well formed");
+            }
+            return Ok(_weatherService.GetRecommendedLocation(preference));
         }
 
         [HttpGet("locations")]
-        public async Task<List<LocationModel>> Get()
+        public ActionResult Get()
         {
-            return await _weatherService.GetLocations();
+            return Ok(_weatherService.GetLocations());
         }
 
         [HttpPost("locations")]
         public async Task<ActionResult> Post([FromBody] LocationModel location)
         {
+            if (location == null)
+            {
+                return BadRequest();
+            }
             bool response = await _weatherService.AddLocation(location);
             if (response)
             {
@@ -63,6 +71,14 @@ namespace Forte.Weather.Api.Controllers
         [HttpPut("locations/{id}")]
         public async Task<ActionResult<LocationModel>> UpdateLocation(string id, LocationModel location)
         {
+            if (location == null)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             bool response = await _weatherService.UpdateLocation(id,location);
             if (response)
             {
@@ -77,9 +93,9 @@ namespace Forte.Weather.Api.Controllers
 
 
         [HttpGet("locations/details")]
-        public async Task<TimeSerie?> GetDetails(string id)
+        public async Task<ActionResult> GetDetails(string id)
         {
-            return await _weatherService.GetUpdatedDetails(id,null,null);
+            return Ok(await _weatherService.GetUpdatedDetails(id,null,null));
         }
 
 

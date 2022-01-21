@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 
 namespace Forte.Weather.Services
 {
-    public class LocationService : ILocationService 
+    public class LocationService : ILocationService
     {
         private readonly ILocationRepository _repository;
 
@@ -17,7 +17,14 @@ namespace Forte.Weather.Services
 
         public LocationModel? GetLocation(string id)
         {
-            return _repository.GetLocation(id)?.ToModel();
+            try
+            {
+                return _repository.GetLocation(id)?.ToModel();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<bool> AddLocation(LocationModel location)
@@ -25,7 +32,7 @@ namespace Forte.Weather.Services
             try
             {
                 location.ID = Guid.NewGuid().ToString();
-                TimeSerie? ts = await GetUpdatedDetails(null,location.Longitude.ToString(),location.Latitude.ToString());
+                TimeSerie? ts = await GetUpdatedDetails(null, location.Longitude.ToString(), location.Latitude.ToString());
                 location.Timeserie = ts;
                 _repository.AddLocation(location.FromModel());
             }
@@ -53,9 +60,9 @@ namespace Forte.Weather.Services
         {
             try
             {
-                TimeSerie? ts = await GetUpdatedDetails(id,null,null);
+                TimeSerie? ts = await GetUpdatedDetails(id, null, null);
                 location.Timeserie = ts;
-                _repository.UpdateLocation(id,location.FromModel());
+                _repository.UpdateLocation(id, location.FromModel());
             }
             catch
             {
@@ -66,15 +73,22 @@ namespace Forte.Weather.Services
 
 
 
-        public async Task<List<LocationModel>> GetLocations()
+        public List<LocationModel> GetLocations()
         {
-            var locations = await _repository.GetLocations();
-            return locations.ToModel();
+            try
+            {
+                var locations = _repository.GetLocations();
+                return locations.ToModel();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        public async Task<LocationModel?> GetRecommendedLocation(string activity)
+        public LocationModel? GetRecommendedLocation(string activity)
         {
-            List<LocationModel> Locations = await GetLocations();
+            List<LocationModel> Locations = GetLocations();
 
             LocationModel? location = null;
             if (Locations.Count() > 0)
@@ -97,7 +111,8 @@ namespace Forte.Weather.Services
                         var index = new Random().Next(Locations.Count);
                         location = Locations[index];
                         break;
-
+                    default:
+                        return null;
                 }
                 return location;
 
@@ -114,34 +129,43 @@ namespace Forte.Weather.Services
             if (id != null)
             {
                 LocationModel? location = GetLocation(id);
-                if (location != null){
+                if (location != null)
+                {
                     elements = $"lat={location.Latitude}&lon={location.Longitude}";
                 }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            else if (longitude != null && latitude != null)
             {
                 elements = $"lat={latitude}&lon={longitude}";
-            }
-            if (elements != "")
-            {
-                var url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?" + elements;
-                YrApiResponse? response = null;
-                using (var client = new HttpClient())
-                {
-                    var request = new HttpRequestMessage(HttpMethod.Get, url);
-                    var productValue = new ProductInfoHeaderValue("ForteWeatherApp", "1.0");
-                    request.Headers.UserAgent.Add(productValue);
-                    var httpResponse = await client.SendAsync(request);
-                    response = await httpResponse.Content.ReadFromJsonAsync<YrApiResponse>();
-                }
-                return response?.Properties?.Timeseries?.FirstOrDefault();
             }
             else
             {
                 return null;
             }
-        }
-            
 
+            var url = "https://api.met.no/weatherapi/locationforecast/2.0/compact?" + elements;
+            YrApiResponse? response = null;
+            using (var client = new HttpClient())
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                var productValue = new ProductInfoHeaderValue("ForteWeatherApp", "1.0");
+                request.Headers.UserAgent.Add(productValue);
+                var httpResponse = await client.SendAsync(request);
+                if (httpResponse.IsSuccessStatusCode)
+                {
+                    response = await httpResponse.Content.ReadFromJsonAsync<YrApiResponse>();
+                    return response?.Properties?.Timeseries?.FirstOrDefault();
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+        }
     }
 }
