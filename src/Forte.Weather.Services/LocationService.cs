@@ -15,15 +15,16 @@ namespace Forte.Weather.Services
         }
 
 
-        public LocationModel? GetLocation(string id)
+        public List<LocationModel> GetLocations()
         {
             try
             {
-                return _repository.GetLocation(id)?.ToModel();
+                var locations = _repository.GetLocations();
+                return locations.ToModel();
             }
             catch
             {
-                return null;
+                return new List<LocationModel>();
             }
         }
 
@@ -32,7 +33,7 @@ namespace Forte.Weather.Services
             try
             {
                 location.ID = Guid.NewGuid().ToString();
-                TimeSerie? ts = await GetUpdatedDetails(null, location.Longitude.ToString(), location.Latitude.ToString());
+                TimeSerie? ts = await GetUpdatedDetails(null, location.Longitude, location.Latitude);
                 location.Timeserie = ts;
                 _repository.AddLocation(location.FromModel());
             }
@@ -71,14 +72,11 @@ namespace Forte.Weather.Services
             return true;
         }
 
-
-
-        public List<LocationModel> GetLocations()
+        public LocationModel? GetLocation(string id)
         {
             try
             {
-                var locations = _repository.GetLocations();
-                return locations.ToModel();
+                return _repository.GetLocation(id)?.ToModel();
             }
             catch
             {
@@ -86,44 +84,9 @@ namespace Forte.Weather.Services
             }
         }
 
-        public LocationModel? GetRecommendedLocation(string activity)
-        {
-            List<LocationModel> Locations = GetLocations();
 
-            LocationModel? location = null;
-            if (Locations.Count() > 0)
-            {
-                switch (activity)
-                {
-                    case "Swimming":
-                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
-                        break;
-                    case "Sailing":
-                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Wind_speed).First();
-                        break;
-                    case "Skiing":
-                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
-                        break;
-                    case "Sightseeing":
-                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_pressure_at_sea_level).First();
-                        break;
-                    case "Unspecified":
-                        var index = new Random().Next(Locations.Count);
-                        location = Locations[index];
-                        break;
-                    default:
-                        return null;
-                }
-                return location;
 
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public async Task<TimeSerie?> GetUpdatedDetails(string? id, string? longitude, string? latitude)
+        public async Task<TimeSerie?> GetUpdatedDetails(string? id, double? longitude, double? latitude)
         {
             string elements = "";
             if (id != null)
@@ -166,6 +129,43 @@ namespace Forte.Weather.Services
                 }
             }
 
+        }
+
+        public LocationModel? GetRecommendedLocation(string activity)
+        {
+            List<LocationModel> Locations = GetLocations();
+
+            LocationModel? location = null;
+            if (Locations.Count() > 0)
+            {
+                switch (activity)
+                {
+                    case "Swimming":
+                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
+                        break;
+                    case "Sailing":
+                        location = Locations.OrderByDescending(x => x.Timeserie?.Data.Instant.Details.Wind_speed).First();
+                        break;
+                    case "Skiing":
+                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_temperature).First();
+                        break;
+                    case "Sightseeing":
+                        location = Locations.OrderBy(x => x.Timeserie?.Data.Instant.Details.Air_pressure_at_sea_level).First();
+                        break;
+                    case "Unspecified":
+                        var index = new Random().Next(Locations.Count);
+                        location = Locations[index];
+                        break;
+                    default:
+                        return null;
+                }
+                return location;
+
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -12,6 +12,11 @@ namespace Forte.Weather.DataAccess.Repository
             _context = context;
         }
 
+        public List<LocationEntity> GetLocations()
+        {
+            return _context.Locations.ToList();
+        }
+
         public void AddLocation(LocationEntity location)
         {
             _context.Locations.Add(location);
@@ -27,22 +32,19 @@ namespace Forte.Weather.DataAccess.Repository
                 _context.SaveChanges();
             }
         }
+
+
+        public void UpdateLocation(string id, LocationEntity location)
+        {
+            var entry = _context.Locations.First(entity => entity.ID == id);
+            _context.Entry(entry).CurrentValues.SetValues(location);
+            _context.SaveChanges();
+        }
+
         public LocationEntity? GetLocation(string id)
         {
             var entry = _context.Locations.FirstOrDefault(entity => entity.ID == id);
             return entry;
-        }
-
-        public List<LocationEntity> GetLocations()
-        {
-            return _context.Locations.ToList();
-        }
-
-        public void UpdateLocation(string id, LocationEntity location)
-        {
-            var entry = _context.Locations.FirstOrDefault(entity => entity.ID == id);
-            _context.Entry(entry).CurrentValues.SetValues(location);
-            _context.SaveChanges();
         }
     }
 }

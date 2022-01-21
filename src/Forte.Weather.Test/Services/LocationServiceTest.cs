@@ -132,7 +132,7 @@ namespace Forte.Weather.Test.Services
 
 
         [TestMethod]
-        public void GetRecommendationWithLocation()
+        public void GetRecommendationWithLocations()
         {
             var result = _service.GetRecommendedLocation("Swimming");
             Assert.AreEqual("Oslo",result?.Name);
@@ -149,7 +149,7 @@ namespace Forte.Weather.Test.Services
         public void GetRecommendationInvalidChoice()
         {
             var result = _service.GetRecommendedLocation("");
-            //Default case slå ut
+            //Default case slår ut
             Assert.IsNull(result);
         }
 
@@ -162,7 +162,7 @@ namespace Forte.Weather.Test.Services
         [TestMethod]
         public void GetDetailsCorrectCoordinates()
         {
-            var result = _service.GetUpdatedDetails(null, "5", "5");
+            var result = _service.GetUpdatedDetails(null, 5, 5);
             Assert.IsNotNull(result);
         }
 
@@ -175,7 +175,7 @@ namespace Forte.Weather.Test.Services
         [TestMethod]
         public void GetDetailsInvalidCoordinates()
         {
-            var result = _service.GetUpdatedDetails(null, "100", "800").Result;
+            var result = _service.GetUpdatedDetails(null, 100, 800).Result;
             Assert.IsNull(result);
         }
         [TestMethod]

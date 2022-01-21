@@ -17,16 +17,6 @@ namespace Forte.Weather.Api.Controllers
             _weatherService = weatherService;
         }
 
-        [HttpGet("locations/recommended")]
-        public ActionResult GetRecommended(string preference)
-        {
-            if (string.IsNullOrEmpty(preference))
-            {
-                return BadRequest("The preferred activity is not well formed");
-            }
-            return Ok(_weatherService.GetRecommendedLocation(preference));
-        }
-
         [HttpGet("locations")]
         public ActionResult Get()
         {
@@ -50,8 +40,9 @@ namespace Forte.Weather.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     "Error adding data");
             }
-            
+
         }
+
 
         [HttpPost("locations/delete")]
         public ActionResult Delete([FromBody] string id)
@@ -98,7 +89,17 @@ namespace Forte.Weather.Api.Controllers
             return Ok(await _weatherService.GetUpdatedDetails(id,null,null));
         }
 
+        [HttpGet("locations/recommended")]
+        public ActionResult GetRecommended(string preference)
+        {
+            if (string.IsNullOrEmpty(preference))
+            {
+                return BadRequest("The preferred activity is not well formed");
+            }
+            return Ok(_weatherService.GetRecommendedLocation(preference));
+        }
 
-        
+
+
     }
 }

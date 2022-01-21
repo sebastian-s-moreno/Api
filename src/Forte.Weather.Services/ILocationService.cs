@@ -15,6 +15,6 @@
 
         public Task<bool> UpdateLocation(string id, LocationModel location);
 
-        public Task<TimeSerie?> GetUpdatedDetails(string? id, string? longitude, string? latitude);
+        public Task<TimeSerie?> GetUpdatedDetails(string? id, double? longitude, double? latitude);
     }
 }
