@@ -8,7 +8,7 @@ namespace Forte.Weather.Services
         public static void AddServices(this IServiceCollection services)
         {
             services.AddDataAccess();
-            services.AddTransient<IWeatherService, WeatherService>();
+            services.AddTransient<ILocationService, LocationService>();
         }
     }
 }
