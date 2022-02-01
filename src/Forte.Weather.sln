@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forte.Weather.Services", "F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forte.Weather.DataAccess", "Forte.Weather.DataAccess\Forte.Weather.DataAccess.csproj", "{E521D379-5AFD-41DC-AB6F-A66876D35D73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forte.Weather.Tests", "Forte.Weather.Test\Forte.Weather.Tests.csproj", "{6ECEDE2B-5692-413A-851B-19682854BFC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Forte.Weather.Tests", "Forte.Weather.Test\Forte.Weather.Tests.csproj", "{6ECEDE2B-5692-413A-851B-19682854BFC4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yr.Facade", "Yr.Facade\Yr.Facade.csproj", "{F76118CB-B304-4DFD-945D-99E9E35392AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{6ECEDE2B-5692-413A-851B-19682854BFC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6ECEDE2B-5692-413A-851B-19682854BFC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6ECEDE2B-5692-413A-851B-19682854BFC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F76118CB-B304-4DFD-945D-99E9E35392AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F76118CB-B304-4DFD-945D-99E9E35392AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F76118CB-B304-4DFD-945D-99E9E35392AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F76118CB-B304-4DFD-945D-99E9E35392AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

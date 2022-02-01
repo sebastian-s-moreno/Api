@@ -1,6 +1,6 @@
-﻿namespace Forte.Weather.Services
+﻿namespace Forte.Weather.Services.Models
 {
-    public enum ActivityPreference
+    public enum Activity
     {
         Swimming,
         Sailing,

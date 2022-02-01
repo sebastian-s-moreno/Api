@@ -1,190 +1,164 @@
-﻿using Forte.Weather.DataAccess.Repository;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Forte.Weather.DataAccess.Repository;
 using Forte.Weather.DataAccess.Schema;
 using Forte.Weather.Services;
+using Forte.Weather.Services.Implementation;
+using Forte.Weather.Services.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Linq;
+using Yr.Facade;
+using Yr.Facade.Models;
 
-namespace Forte.Weather.Test.Services
+namespace Forte.Weather.Tests.Services
 {
     [TestClass]
     public class LocationServiceTest
     {
-        private ILocationService _service;
-        private Mock<ILocationRepository> _mockRepository;
+        private ILocationService _locationService;
+        private Mock<ILocationRepository> _locationRepositoryMock;
+        private Mock<IYrFacade> _yrFacadeMock;
 
         [TestInitialize]
         public void Initialize()
         {
-            var ts1 = JsonConvert.SerializeObject(new TimeSerie
-            {
-                Data = new Data
-                {
-                    Instant = new Instant
-                    {
-                        Details = new Details
-                        {
-                            Air_pressure_at_sea_level = 1001,
-                            Air_temperature = 5.6,
-                            Relative_humidity = 95.6,
-                            Wind_from_direction = 216.6,
-                            Wind_speed = 13
-                        }
-                    }
-                },
-                Time = System.DateTimeOffset.Now
-            });
-            var ts2 = JsonConvert.SerializeObject(new TimeSerie
-            {
-                Data = new Data
-                {
-                    Instant = new Instant
-                    {
-                        Details = new Details
-                        {
-                            Air_pressure_at_sea_level = 997.1,
-                            Air_temperature = -1.6,
-                            Relative_humidity = 95.9,
-                            Wind_from_direction = 319.4,
-                            Wind_speed = 9.3
-                        }
-                    }
-                },
-                Time = System.DateTimeOffset.Now
-            });
-            var ts3 = JsonConvert.SerializeObject(new TimeSerie
-            {
-                Data = new Data
-                {
-                    Instant = new Instant
-                    {
-                        Details = new Details
-                        {
-                            Air_pressure_at_sea_level = 997.1,
-                            Air_temperature = -1.6,
-                            Relative_humidity = 95.9,
-                            Wind_from_direction = 319.4,
-                            Wind_speed = 9.3
-                        }
-                    }
-                },
-                Time = System.DateTimeOffset.Now
-            });
             // create some mock products
-            List<LocationEntity> locations = new List<LocationEntity>
-                {
-                    new LocationEntity  {
-                        ID= "040958d7-e085-4748-8518-8a23292c114b",
-                        Name= "Oslo",
-                        Latitude=59,
-                        Longitude= 11,
-                        Timeserie = ts1},
-                    new LocationEntity  {
-                        ID= "6db14abf-f819-4816-99c0-3f11592603aa",
-                        Name= "Trondheim",
-                        Latitude=63,
-                        Longitude= 10,
-                        Timeserie=ts2},
-                    new LocationEntity  {
-                        ID= "5e525c01-d4c8-4c35-a7da-f4ad7b19dd59",
-                        Name= "Bergen",
-                        Latitude=60,
-                        Longitude= 5,
-                        Timeserie=ts3}
-                };
+            var locations = GetLocations();
 
-            
-            _mockRepository = new Mock<ILocationRepository>();
+            _locationRepositoryMock = new Mock<ILocationRepository>();
+            _yrFacadeMock = new Mock<IYrFacade>();
 
             // Return all the locations
-            _mockRepository.Setup(mr => mr.GetLocations()).Returns(locations);
+            _locationRepositoryMock.Setup(mr => mr.GetLocations()).Returns(locations);
 
             // return a location by Id
-            _mockRepository.Setup(mr => mr.GetLocation(
-                It.IsAny<string>())).Returns((string i) => locations.Where(
-                x => x.ID == i).Single());
+            _locationRepositoryMock.Setup(mr => mr.GetLocation(
+                It.IsAny<string>())).Returns((string i) => locations.Single(x => x.ID == i));
 
-            _service = new LocationService(_mockRepository.Object);
+            _locationService = new LocationService(_locationRepositoryMock.Object, _yrFacadeMock.Object);
         }
 
         [TestMethod]
         public void CreateLocation()
         {
-            LocationModel location = new LocationModel
+            // Arrange
+            var location = new Location
             {
                 Name = "Oslo",
                 Latitude = 11,
                 Longitude = 15
             };
-            var result = _service.AddLocation(location).Result;
+
+            // Act
+            var result = _locationService.AddLocation(location).Result;
+
+            // Assert
             Assert.IsTrue(result);
         }
-
 
         [TestMethod]
         public void DeleteLocation()
         {
-            var result = _service.DeleteLocation("5e525c01-d4c8-4c35-a7da-f4ad7b19dd59");
+            // Act
+            var result = _locationService.DeleteLocation("5e525c01-d4c8-4c35-a7da-f4ad7b19dd59");
+
+            // Assert
             Assert.IsTrue(result);
-        }
-
-
-        [TestMethod]
-        public void GetRecommendationWithLocations()
-        {
-            var result = _service.GetRecommendedLocation(ActivityPreference.Swimming);
-            Assert.AreEqual("Oslo",result?.Name);
-        }
-
-        [TestMethod]
-        public void GetRecommendationWithNoneLocations()
-        {
-            _mockRepository.Setup(mr => mr.GetLocations()).Returns(new List<LocationEntity>());
-            var result = _service.GetRecommendedLocation(ActivityPreference.Swimming);
-            Assert.IsNull(result);
-        }
-        [TestMethod]
-        public void GetRecommendationInvalidChoice()
-        {
-            //var result = _service.GetRecommendedLocation(null);
-            //Default case slår ut
-            //Assert.IsNull(result);
         }
 
         [TestMethod]
         public void GetDetailsCorrectID()
         {
-            var result = _service.GetUpdatedDetails("5e525c01-d4c8-4c35-a7da-f4ad7b19dd59", null, null);
+            // Act
+            var result = _locationService.GetUpdatedDetails("5e525c01-d4c8-4c35-a7da-f4ad7b19dd59");
+
+            // Assert
             Assert.IsNotNull(result);
         }
         [TestMethod]
         public void GetDetailsCorrectCoordinates()
         {
-            var result = _service.GetUpdatedDetails(null, 5, 5);
+            // Act
+            var result = _locationService.GetUpdatedDetails(5, 5);
+
+            // Assert
             Assert.IsNotNull(result);
         }
 
         [TestMethod]
         public void GetDetailsInvalidString()
         {
-            var result = _service.GetUpdatedDetails("123",null,null).Result;
+            // Act
+            var result = _locationService.GetUpdatedDetails("123").Result;
+
+            // Assert
             Assert.IsNull(result);
         }
         [TestMethod]
         public void GetDetailsInvalidCoordinates()
         {
-            var result = _service.GetUpdatedDetails(null, 100, 800).Result;
-            Assert.IsNull(result);
+            // Arrange
+            _yrFacadeMock.Setup(x => x.GetYrResponse(It.IsAny<string>())).Returns(Task.FromResult<Details?>(null));
+
+            // Act
+            var result = _locationService.GetUpdatedDetails(100, 800).Result;
+
+            // Assert
+            Assert.IsNull(result.AirPressureAtSeaLevel);
+            Assert.IsNull(result.AirTemperature);
+            Assert.IsNull(result.RelativeHumidity);
+            Assert.IsNull(result.WindFromDirection);
+            Assert.IsNull(result.WindSpeed);
         }
         [TestMethod]
         public void GetDetailsNoInput()
         {
-            var result = _service.GetUpdatedDetails(null, null, null).Result;
+            // Act
+            var result = _locationService.GetUpdatedDetails(null, null).Result;
+
+            // Assert
             Assert.IsNull(result);
         }
 
-
+        private static List<LocationEntity> GetLocations()
+        {
+            return new List<LocationEntity>
+            {
+                new()
+                {
+                    ID= "040958d7-e085-4748-8518-8a23292c114b",
+                    Name= "Oslo",
+                    Latitude=59,
+                    Longitude= 11,
+                    AirPressureAtSeaLevel = 1001,
+                    AirTemperature = 5.6,
+                    RelativeHumidity = 95.6,
+                    WindFromDirection = 216.6,
+                    WindSpeed = 13},
+                new()
+                {
+                    ID= "6db14abf-f819-4816-99c0-3f11592603aa",
+                    Name= "Trondheim",
+                    Latitude=63,
+                    Longitude= 10,
+                    AirPressureAtSeaLevel = 997.1,
+                    AirTemperature = -1.6,
+                    RelativeHumidity = 95.9,
+                    WindFromDirection = 319.4,
+                    WindSpeed = 9.3},
+                new()
+                {
+                    ID= "5e525c01-d4c8-4c35-a7da-f4ad7b19dd59",
+                    Name= "Bergen",
+                    Latitude=60,
+                    Longitude= 5,
+                    AirPressureAtSeaLevel = 997.1,
+                    AirTemperature = -1.6,
+                    RelativeHumidity = 95.9,
+                    WindFromDirection = 319.4,
+                    WindSpeed= 9.3}
+            };
+        }
     }
 }

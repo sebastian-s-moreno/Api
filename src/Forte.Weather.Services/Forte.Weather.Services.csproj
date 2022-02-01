@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Forte.Weather.DataAccess\Forte.Weather.DataAccess.csproj" />
+    <ProjectReference Include="..\Yr.Facade\Yr.Facade.csproj" />
   </ItemGroup>
 
 </Project>

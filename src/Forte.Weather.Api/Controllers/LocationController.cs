@@ -1,7 +1,6 @@
 using Forte.Weather.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
-using System.Net.Http.Headers;
+using Forte.Weather.Services.Models;
 
 namespace Forte.Weather.Api.Controllers
 {
@@ -9,28 +8,29 @@ namespace Forte.Weather.Api.Controllers
     [Route("api/weather")]
     public class LocationController : ControllerBase
     {
-        private readonly ILocationService _weatherService;
-        public static List<LocationModel> Locations = new List<LocationModel>();
+        private readonly ILocationService _locationService;
+        private readonly IRecommendationService _recommendationService;
 
-        public LocationController(ILocationService weatherService)
+        public LocationController(ILocationService locationService, IRecommendationService recommendationService)
         {
-            _weatherService = weatherService;
+            _locationService = locationService;
+            _recommendationService = recommendationService;
         }
 
         [HttpGet("locations")]
         public ActionResult Get()
         {
-            return Ok(_weatherService.GetLocations());
+            return Ok(_locationService.GetLocations());
         }
 
         [HttpPost("locations")]
-        public async Task<ActionResult> Post([FromBody] LocationModel location)
+        public async Task<ActionResult> Post([FromBody] Location location)
         {
             if (location == null)
             {
                 return BadRequest();
             }
-            bool response = await _weatherService.AddLocation(location);
+            bool response = await _locationService.AddLocation(location);
             if (response)
             {
                 return Ok(new { message = "Location added" });
@@ -46,7 +46,7 @@ namespace Forte.Weather.Api.Controllers
         [HttpDelete("locations/{id}")]
         public ActionResult Delete(string id)
         {
-            bool response = _weatherService.DeleteLocation(id);
+            bool response = _locationService.DeleteLocation(id);
             if (response)
             {
                 return Ok(new { message = "Location deleted" });
@@ -59,7 +59,7 @@ namespace Forte.Weather.Api.Controllers
         }
 
         [HttpPut("locations/{id}")]
-        public async Task<ActionResult<LocationModel>> UpdateLocation(string id, LocationModel location)
+        public async Task<ActionResult<Location>> UpdateLocation(string id, Location location)
         {
             if (location == null)
             {
@@ -69,7 +69,7 @@ namespace Forte.Weather.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            bool response = await _weatherService.UpdateLocation(id,location);
+            bool response = await _locationService.UpdateLocation(id,location);
             if (response)
             {
                 return Ok(new { message = "Location updated" });
@@ -85,13 +85,13 @@ namespace Forte.Weather.Api.Controllers
         [HttpGet("locations/details")]
         public async Task<ActionResult> GetDetails(string id)
         {
-            return Ok(await _weatherService.GetUpdatedDetails(id,null,null));
+            return Ok(await _locationService.GetUpdatedDetails(id));
         }
 
         [HttpGet("locations/recommended")]
-        public ActionResult GetRecommended(ActivityPreference preference)
+        public ActionResult GetRecommended(Activity preference)
         {
-            return Ok(_weatherService.GetRecommendedLocation(preference));
+            return Ok(_recommendationService.GetRecommendedLocation(preference));
         }
 
 

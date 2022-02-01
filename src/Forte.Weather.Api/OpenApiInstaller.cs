@@ -30,9 +30,9 @@ public static class OpenApiInstaller
         app.UseSwaggerUI(options =>
         {
             options.RoutePrefix = "docs";
-            options.DocumentTitle = "Weather api";
+            options.DocumentTitle = "WeatherData api";
             options.InjectStylesheet("/swagger-ui/custom.css");
-            options.SwaggerEndpoint("/docs/v1/docs.json", "Forte.Weather.Api v1");
+            options.SwaggerEndpoint("/docs/v1/docs.json", "Forte.WeatherData.Api v1");
         });
     }
 }

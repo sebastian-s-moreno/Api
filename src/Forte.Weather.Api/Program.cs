@@ -1,6 +1,6 @@
 using Forte.Weather.Api;
-using Forte.Weather.Services;
 using System.Text.Json.Serialization;
+using Forte.Weather.Services.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 

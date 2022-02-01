@@ -1,41 +1,26 @@
-﻿ using System.ComponentModel.DataAnnotations;
-
-namespace Forte.Weather.Services
+﻿namespace Yr.Facade.Models
 {
-
-    public class LocationModel
-    {
-        public string? ID { get; set; }
-        [Required]
-        public string Name { get; set; } = "";
-        [Required]
-        [Range(-90,90)]
-        public double? Latitude { get; set; }
-        [Required]
-        [Range(-180,80)]
-        public double? Longitude { get; set; }
-        public TimeSerie? Timeserie { get; set; }
-    }
-
-    public class YrApiResponse
+    internal class YrApiResponse
     {
         public string? Type { get; set; }
         public Property Properties { get; set; } = new();
     }
-    public class Property
+
+    internal class Property
     {
         public List<TimeSerie> Timeseries { get; set; } = new();
     }
-    public class TimeSerie
+
+    internal class TimeSerie
     {
         public Data Data { get; set; } = new();
         public DateTimeOffset Time { get; set; }
     }
-    public class Data
+    internal class Data
     {
         public Instant Instant { get; set; } = new();
     }
-    public class Instant
+    internal class Instant
     {
         public Details Details { get; set; } = new();
     }

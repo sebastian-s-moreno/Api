@@ -16,6 +16,5 @@ namespace Forte.Weather.DataAccess.Schema
 
         public DbSet<LocationEntity> Locations { get; set; } 
 
-
     }
 }

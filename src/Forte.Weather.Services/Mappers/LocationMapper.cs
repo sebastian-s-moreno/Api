@@ -1,36 +1,47 @@
 ﻿using Forte.Weather.DataAccess.Schema;
-using Newtonsoft.Json;
+using Forte.Weather.Services.Models;
 
 namespace Forte.Weather.Services.Mappers
 {
     public static class LocationMapper
     {
-        public static List<LocationModel> ToModel(this List<LocationEntity> entities)
+        public static List<Location> ToModel(this List<LocationEntity> entities)
         {
             return entities.Select(entity => entity.ToModel()).ToList();
         }
 
-        public static LocationModel ToModel(this LocationEntity entity)
+        public static Location ToModel(this LocationEntity entity)
         {
-            return new()
+            return new Location
             {
-                ID = entity.ID,
+                Id = entity.ID,
                 Name = entity.Name,
                 Latitude = entity.Latitude,
                 Longitude = entity.Longitude,
-                Timeserie = JsonConvert.DeserializeObject<TimeSerie>(entity.Timeserie)
+                WeatherData = new Models.Weather
+                {
+                    AirPressureAtSeaLevel = entity.AirPressureAtSeaLevel,
+                    AirTemperature = entity.AirTemperature,
+                    RelativeHumidity = entity.RelativeHumidity,
+                    WindFromDirection = entity.WindFromDirection,
+                    WindSpeed = entity.WindSpeed
+                }
             };
         }
 
-        public static LocationEntity FromModel(this LocationModel entity)
+        public static LocationEntity FromModel(this Location model)
         {
-            return new()
+            return new LocationEntity
             {
-                ID = entity.ID,
-                Name = entity.Name,
-                Latitude = entity.Latitude,
-                Longitude = entity.Longitude,
-                Timeserie = JsonConvert.SerializeObject(entity.Timeserie)
+                ID = model.Id,
+                Name = model.Name,
+                Latitude = model.Latitude,
+                Longitude = model.Longitude,
+                AirPressureAtSeaLevel = model.WeatherData?.AirPressureAtSeaLevel,
+                AirTemperature = model.WeatherData?.AirTemperature,
+                RelativeHumidity = model.WeatherData?.RelativeHumidity,
+                WindFromDirection = model.WeatherData?.WindFromDirection,
+                WindSpeed = model.WeatherData?.WindSpeed
             };
         }
     }
